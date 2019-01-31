@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Company>Hukano</Company>
+    <Authors>Kim Hugener-Ohlsen</Authors>
+    <Version>0.0.0-pre005</Version>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+	<LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors />
+    <DocumentationFile>bin\Debug\netstandard2.0\Sundew.Pi.IO.Devices.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>bin\Release\netstandard2.0\Sundew.Pi.IO.Devices.xml</DocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors />
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="stylecop.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="stylecop.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Pi.IO.InterIntegratedCircuit.SundewFork" Version="0.0.3-pre013" />
+    <PackageReference Include="Pi.IO.SerialPeripheralInterface.SundewFork" Version="0.0.3-pre013" />
+    <PackageReference Include="Pi.IO.SundewFork" Version="0.0.3-pre013" />
+    <PackageReference Include="Pi.System.SundewFork" Version="0.0.3-pre013" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.1-beta.61">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Sundew.Base" Version="3.3.0" />
+    <PackageReference Include="Sundew.TextView.Pi.Drivers" Version="0.0.0-pre006" />
+  </ItemGroup>
+
+</Project>
