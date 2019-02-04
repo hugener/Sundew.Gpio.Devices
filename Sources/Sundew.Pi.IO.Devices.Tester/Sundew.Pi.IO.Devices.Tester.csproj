@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Sundew.TextView.ApplicationFramework" Version="0.0.0-pre007" />
+    <PackageReference Include="Sundew.TextView.ApplicationFramework" Version="0.0.0-pre009" />
   </ItemGroup>
 
   <ItemGroup>

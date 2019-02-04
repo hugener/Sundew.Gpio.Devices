@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <Company>Hukano</Company>
     <Authors>Kim Hugener-Ohlsen</Authors>
-    <Version>0.0.0-pre005</Version>
+    <Version>0.0.0-pre006</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 	<LangVersion>latest</LangVersion>
   </PropertyGroup>
@@ -30,16 +30,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Pi.IO.InterIntegratedCircuit.SundewFork" Version="0.0.3-pre013" />
-    <PackageReference Include="Pi.IO.SerialPeripheralInterface.SundewFork" Version="0.0.3-pre013" />
-    <PackageReference Include="Pi.IO.SundewFork" Version="0.0.3-pre013" />
-    <PackageReference Include="Pi.System.SundewFork" Version="0.0.3-pre013" />
+    <PackageReference Include="Pi.IO.InterIntegratedCircuit.SundewFork" Version="0.0.3-pre014" />
+    <PackageReference Include="Pi.IO.SerialPeripheralInterface.SundewFork" Version="0.0.3-pre014" />
+    <PackageReference Include="Pi.IO.SundewFork" Version="0.0.3-pre014" />
+    <PackageReference Include="Pi.System.SundewFork" Version="0.0.3-pre014" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.1-beta.61">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Sundew.Base" Version="3.3.0" />
-    <PackageReference Include="Sundew.TextView.Pi.Drivers" Version="0.0.0-pre006" />
+    <PackageReference Include="Sundew.Base" Version="3.3.8" />
+    <PackageReference Include="Sundew.TextView.Pi.Drivers" Version="0.0.0-pre008" />
   </ItemGroup>
 
 </Project>
