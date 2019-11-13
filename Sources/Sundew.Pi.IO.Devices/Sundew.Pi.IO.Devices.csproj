@@ -1,12 +1,15 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Company>Hukano</Company>
     <Authors>Kim Hugener-Ohlsen</Authors>
-    <Version>0.0.0-pre006</Version>
+    <Version>0.0.1</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-	<LangVersion>latest</LangVersion>
+    <LangVersion>8</LangVersion>
+    <Configurations>Debug;Release;Release-Stable</Configurations>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Copyright>Kim Hugener-Ohlsen</Copyright>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -21,6 +24,13 @@
     <WarningsAsErrors />
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-Stable|AnyCPU'">
+    <DocumentationFile>bin\Release\netstandard2.0\Sundew.Pi.IO.Devices.xml</DocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors />
+    <SbpSourceName>local-stable</SbpSourceName>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Remove="stylecop.json" />
   </ItemGroup>
@@ -30,16 +40,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Pi.IO.InterIntegratedCircuit.SundewFork" Version="0.0.3-pre014" />
-    <PackageReference Include="Pi.IO.SerialPeripheralInterface.SundewFork" Version="0.0.3-pre014" />
-    <PackageReference Include="Pi.IO.SundewFork" Version="0.0.3-pre014" />
-    <PackageReference Include="Pi.System.SundewFork" Version="0.0.3-pre014" />
-    <PackageReference Include="StyleCop.Analyzers" Version="1.1.1-beta.61">
+    <PackageReference Include="Pi.SundewFork" Version="0.1.0" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Sundew.Base" Version="3.3.8" />
-    <PackageReference Include="Sundew.TextView.Pi.Drivers" Version="0.0.0-pre008" />
+    <PackageReference Include="Sundew.Base" Version="4.0.0" />
+    <PackageReference Include="Sundew.Build.Publish" Version="1.0.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
 </Project>

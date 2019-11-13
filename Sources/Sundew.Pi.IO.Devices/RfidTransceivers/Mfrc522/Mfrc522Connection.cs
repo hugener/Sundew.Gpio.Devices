@@ -9,8 +9,8 @@ namespace Sundew.Pi.IO.Devices.RfidTransceivers.Mfrc522
 {
     using System;
     using System.Threading;
+    using global::Pi.Core.Threading;
     using global::Pi.IO.GeneralPurpose;
-    using global::Pi.System.Threading;
     using Sundew.Base.Threading;
     using Sundew.Base.Threading.Jobs;
 
@@ -88,15 +88,18 @@ namespace Sundew.Pi.IO.Devices.RfidTransceivers.Mfrc522
         {
             this.scanningJob.Dispose();
             this.mfrc522Device.Dispose();
-            this.gpioConnectionDriverFactory.Dispose(this.gpioConnectionDriver);
+            this.gpioConnectionDriverFactory.Dispose();
         }
 
         private void CheckForTags(CancellationToken cancellationToken)
         {
+            //// Console.WriteLine("is tag");
             var result = this.mfrc522Device.IsTagPresent();
             if (result)
             {
+                //// Console.WriteLine("read");
                 var uid = this.mfrc522Device.ReadUid();
+                //// Console.WriteLine("halt");
                 this.mfrc522Device.HaltTag();
                 if (uid.IsValid)
                 {
@@ -105,7 +108,7 @@ namespace Sundew.Pi.IO.Devices.RfidTransceivers.Mfrc522
                 }
             }
 
-            this.thread.Sleep(TimeSpan.FromMilliseconds(50), cancellationToken);
+            this.thread.Sleep(TimeSpan.FromMilliseconds(400), cancellationToken);
         }
     }
 }

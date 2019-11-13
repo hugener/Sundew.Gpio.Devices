@@ -5,6 +5,13 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
+using System.Linq;
+using Pi;
+using Pi.Core;
+using Pi.Core.Threading;
+using Sundew.Base.Threading;
+using Sundew.Base.Threading.Jobs;
+
 namespace Sundew.Pi.IO.Devices.Tester
 {
     using System;
@@ -24,6 +31,10 @@ namespace Sundew.Pi.IO.Devices.Tester
         private IInvalidater invalidater;
         private int rotation;
         private ITag tag;
+        private int detectionCount;
+        private int jobCounter;
+        private ContinuousJob job;
+        private ICurrentThread thread;
 
         public MainTextView(Mfrc522Connection rfidTransceiver, Ky040Device rotaryEncoder)
         {
@@ -32,6 +43,7 @@ namespace Sundew.Pi.IO.Devices.Tester
             this.rfidTransceiver.TagDetected += this.OnRfidTransceiverTagDetected;
             this.rotaryEncoder.Pressed += this.OnRotaryEncoderPressed;
             this.rotaryEncoder.Rotated += this.OnRotaryEncoderRotated;
+            this.thread = new ThreadFactory(Board.Current, true).Create();
         }
 
         public IEnumerable<object> InputTargets => null;
@@ -39,30 +51,43 @@ namespace Sundew.Pi.IO.Devices.Tester
         public Task OnShowingAsync(IInvalidater invalidater, ICharacterContext characterContext)
         {
             this.invalidater = invalidater;
-            this.rfidTransceiver.StartScanning();
+            //this.rfidTransceiver.StartScanning();
             this.rotaryEncoder.Start();
+            this.job = new ContinuousJob(this.Action);
+            this.job.Start();
             return Task.CompletedTask;
         }
 
-        public void Render(IRenderContext renderContext)
+        public void OnDraw(IRenderContext renderContext)
         {
             renderContext.Home();
             if (this.tag != null)
             {
-                renderContext.Write($"{this.tag} {(this.tag.IsValid ? "OK" : "NOK")}".LimitAndPadLeft(renderContext.Size.Width, ' '));
+                renderContext.Write($"{this.tag} {(this.tag.IsValid ? "OK" : "NOK")} {this.detectionCount,4}".LimitAndPadLeft(renderContext.Size.Width, ' '));
             }
 
             renderContext.SetPosition(0, 1);
-            renderContext.WriteLine(this.rotation.ToString().LimitAndPadLeft(renderContext.Size.Width, ' '));
+            renderContext.WriteLine($"{this.jobCounter} {this.rotation}".LimitAndPadLeft(renderContext.Size.Width, ' '));
         }
 
         public Task OnClosingAsync()
         {
+            this.job.Stop();
+            this.job.Dispose();
             return Task.CompletedTask;
         }
 
         private void OnRfidTransceiverTagDetected(object sender, TagDetectedEventArgs e)
         {
+            if (this.tag != null && this.tag.RawData.SequenceEqual(e.Tag.RawData))
+            {
+                this.detectionCount++;
+            }
+            else
+            {
+                this.detectionCount = 0;
+            }
+
             this.tag = e.Tag;
             this.invalidater.Invalidate();
         }
@@ -92,7 +117,13 @@ namespace Sundew.Pi.IO.Devices.Tester
             }
 
             this.invalidater.Invalidate();
-            Thread.Sleep(100);
+        }
+
+        private void Action(CancellationToken obj)
+        {
+            this.jobCounter++;
+            this.invalidater.Invalidate();
+            this.thread.Sleep(1000, obj);
         }
     }
 }

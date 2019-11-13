@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Ky040Device.cs" company="Hukano">
+// <copyright file="Ky040DeviceWithDebounce.cs" company="Hukano">
 // Copyright (c) Hukano. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
@@ -16,7 +16,7 @@ namespace Sundew.Pi.IO.Devices.RotaryEncoders.Ky040
     /// Pin connection to a KY-040 rotary encoder.
     /// </summary>
     /// <seealso cref="T:System.IDisposable" />
-    public class Ky040Device : IRotaryEncoderWithButtonDevice
+    public class Ky040DeviceWithDebounce : IRotaryEncoderWithButtonDevice
     {
         private const int FullTurnSwitchesState = 0b0011;
         private readonly IGpioConnectionDriverFactory gpioConnectionDriverFactory;
@@ -27,20 +27,22 @@ namespace Sundew.Pi.IO.Devices.RotaryEncoders.Ky040
         private readonly InputPinConfiguration clkPinConfiguration;
         private readonly InputPinConfiguration dtPinConfiguration;
         private readonly InputPinConfiguration buttonPinConfiguration;
+        private readonly Stopwatch debouncer = new Stopwatch();
         private GpioConnection gpioConnection;
+        private TimeSpan debounce = TimeSpan.FromMilliseconds(1);
         private int lastSwitchesState = FullTurnSwitchesState;
         private int encoderValue;
         private int errorStateCount = 0;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Ky040Device" /> class.
+        /// Initializes a new instance of the <see cref="Ky040DeviceWithDebounce" /> class.
         /// </summary>
         /// <param name="clockConnectorPin">The clock connector pin.</param>
         /// <param name="dataConnectorPin">The data connector pin.</param>
         /// <param name="buttonConnectorPin">The button connector pin.</param>
         /// <param name="gpioConnectionDriverFactory">The gpio connection driver factory.</param>
         /// <param name="rotaryEncoderReporter">The ky040 reporter.</param>
-        public Ky040Device(
+        public Ky040DeviceWithDebounce(
             ConnectorPin clockConnectorPin,
             ConnectorPin dataConnectorPin,
             ConnectorPin buttonConnectorPin,
@@ -79,11 +81,13 @@ namespace Sundew.Pi.IO.Devices.RotaryEncoders.Ky040
             if (this.gpioConnection == null)
             {
                 this.gpioConnection = new GpioConnection(
-                    new GpioConnectionSettings { PollInterval = TimeSpan.FromMilliseconds(1) },
-                    this.gpioConnectionDriverFactory,
+                    new GpioConnectionSettings { PollInterval = global::Pi.Core.Timers.TimeSpanUtility.FromMicroseconds(100) },
+                    new GpioConnectionDriverFactory(this.gpioConnectionDriver),
                     this.dtPinConfiguration,
                     this.buttonPinConfiguration,
                     this.clkPinConfiguration);
+                this.debouncer.Restart();
+
                 if ((this.gpioConnectionDriver.GetCapabilities() &
                      GpioConnectionDriverCapabilities.CanSetPinDetectedEdges) > 0)
                 {
@@ -112,58 +116,62 @@ namespace Sundew.Pi.IO.Devices.RotaryEncoders.Ky040
         public void Dispose()
         {
             this.Stop();
-            this.gpioConnectionDriverFactory.Dispose();
+            this.gpioConnectionDriverFactory.Dispose(this.gpioConnectionDriver);
         }
 
         private void OnEncoderChanged(bool obj)
         {
-            var lsb = this.gpioConnectionDriver.Read(this.clockProcessorPin) ? 1 : 0;
-            var msb = this.gpioConnectionDriver.Read(this.dataProcessorPin) ? 1 : 0;
-
-            var switchesState = msb << 1 | lsb;
-            var encoderState = (EncoderStates)(switchesState << 2 | this.lastSwitchesState);
-            switch (encoderState)
+            if (this.debounce == TimeSpan.Zero | this.debouncer.Elapsed > this.debounce)
             {
-                case EncoderStates.ClockFallingEdgeAndDataIsHigh:
-                case EncoderStates.DataFallingEdgeAndClockIsLow:
-                case EncoderStates.ClockRisingEdgeAndDataIsLow:
-                case EncoderStates.DataRisingEdgeAndClockIsHigh:
-                    this.encoderValue++;
-                    break;
-                case EncoderStates.DataFallingEdgeAndClockIsHigh:
-                case EncoderStates.ClockFallingEdgeAndDataIsLow:
-                case EncoderStates.DataRisingEdgeAndClockIsLow:
-                case EncoderStates.ClockRisingEdgeAndDataIsHigh:
-                    this.encoderValue--;
-                    break;
-                default:
-                    this.errorStateCount++;
-                    if (this.errorStateCount > 2)
-                    {
-                        /*this.errorStateCount = 0;
-                        this.lastSwitchesState = 0;
-                        this.encoderValue = 0;*/
-                    }
+                var lsb = this.gpioConnectionDriver.Read(this.clockProcessorPin) ? 1 : 0;
+                var msb = this.gpioConnectionDriver.Read(this.dataProcessorPin) ? 1 : 0;
 
-                    return;
-            }
-
-            if (switchesState == FullTurnSwitchesState)
-            {
-                switch (this.encoderValue >> 2)
+                var switchesState = msb << 1 | lsb;
+                var encoderState = (EncoderStates)(switchesState << 2 | this.lastSwitchesState);
+                switch (encoderState)
                 {
-                    case 1:
-                        this.RaiseRotatedClockwise();
-                        this.encoderValue = 0;
+                    case EncoderStates.ClockFallingEdgeAndDataIsHigh:
+                    case EncoderStates.DataFallingEdgeAndClockIsLow:
+                    case EncoderStates.ClockRisingEdgeAndDataIsLow:
+                    case EncoderStates.DataRisingEdgeAndClockIsHigh:
+                        this.encoderValue++;
                         break;
-                    case -1:
-                        this.RaiseRotatedCounterClockwise();
-                        this.encoderValue = 0;
+                    case EncoderStates.DataFallingEdgeAndClockIsHigh:
+                    case EncoderStates.ClockFallingEdgeAndDataIsLow:
+                    case EncoderStates.DataRisingEdgeAndClockIsLow:
+                    case EncoderStates.ClockRisingEdgeAndDataIsHigh:
+                        this.encoderValue--;
                         break;
-                }
-            }
+                    default:
+                        this.errorStateCount++;
+                        if (this.errorStateCount > 4)
+                        {
+                            this.errorStateCount = 0;
+                            this.lastSwitchesState = 0;
+                            this.encoderValue = 0;
+                        }
 
-            this.lastSwitchesState = switchesState;
+                        return;
+                }
+
+                if (switchesState == FullTurnSwitchesState)
+                {
+                    switch (this.encoderValue >> 2)
+                    {
+                        case 1:
+                            this.RaiseRotatedClockwise();
+                            this.encoderValue = 0;
+                            break;
+                        case -1:
+                            this.RaiseRotatedCounterClockwise();
+                            this.encoderValue = 0;
+                            break;
+                    }
+                }
+
+                this.lastSwitchesState = switchesState;
+                this.debouncer.Restart();
+            }
         }
 
         private void OnButtonPressed(bool state)

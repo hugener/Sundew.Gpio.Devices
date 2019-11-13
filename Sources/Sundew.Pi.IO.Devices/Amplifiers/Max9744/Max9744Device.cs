@@ -72,7 +72,7 @@ namespace Sundew.Pi.IO.Devices.Amplifiers.Max9744
             // connect shutdown via gpio
             this.mutePin = mutePin.Output().Revert();
             this.shutdownPin = shutdownPin.Output().Revert();
-            this.gpioConnection = new GpioConnection(new GpioConnectionDriverFactory(this.gpioConnectionDriver), this.shutdownPin, this.mutePin);
+            this.gpioConnection = new GpioConnection(this.gpioConnectionDriverFactory, this.shutdownPin, this.mutePin);
         }
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace Sundew.Pi.IO.Devices.Amplifiers.Max9744
         /// <value>
         /// The volume range.
         /// </value>
-        public Range<byte> VolumeRange { get; } = new Range<byte>(0, 63);
+        public Interval<byte> VolumeRange { get; } = new Interval<byte>(0, 63);
 
         /// <summary>
         /// Sets the volume.

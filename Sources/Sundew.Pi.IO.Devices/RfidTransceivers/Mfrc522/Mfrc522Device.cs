@@ -39,7 +39,7 @@ namespace Sundew.Pi.IO.Devices.RfidTransceivers.Mfrc522
         /// <param name="antennaGain">The antenna gain.</param>
         /// <exception cref="Exception">GPIO initialization failed.</exception>
         /// <exception cref="Exception"> SPI initialization failed.</exception>
-        public void Initialize(string spiPath, ConnectorPin? resetConnectorPin, AntennaGain antennaGain)
+        public void Initialize(string spiPath, ConnectorPin? resetConnectorPin, AntennaGain? antennaGain = null)
         {
             try
             {
@@ -63,15 +63,18 @@ namespace Sundew.Pi.IO.Devices.RfidTransceivers.Mfrc522
                 };
 
                 this.nativeSpiConnection = new NativeSpiConnection(spiPath, settings);
-            }/* If initialization fails, display the exception and stop running */
+            } /* If initialization fails, display the exception and stop running */
             catch (Exception ex)
             {
                 throw new Exception("SPI Initialization Failed", ex);
             }
 
+            if (antennaGain != null)
+            {
+                this.SetRegisterBits(Registers.RFCgReg, (byte)((int)antennaGain & 0x70));
+            }
+
             this.Reset();
-            this.ClearRegisterBits(Registers.RFCgReg, 0x70);
-            this.SetRegisterBits(Registers.RFCgReg, (byte)((int)antennaGain & 0x70));
         }
 
         /// <summary>
@@ -107,22 +110,28 @@ namespace Sundew.Pi.IO.Devices.RfidTransceivers.Mfrc522
         {
             // Enable short frames
             this.WriteRegister(Registers.BitFraming, 0x07);
+            //// Console.WriteLine("BitFraming7");
 
             // Transceive the Request command to the tag
             this.Transceive(false, PiccCommands.Request);
+            //// Console.WriteLine("Transceive");
 
             // Disable short frames
             this.WriteRegister(Registers.BitFraming, 0x00);
+            //// Console.WriteLine("BitFraming0");
 
             if (this.GetFifoLevel() == 2)
             {
                 var (_, atqaLow) = this.ReadFromFifo2Bytes();
                 var bitFrame = atqaLow & 0b0001_1111;
+                //// Console.WriteLine(atqaLow);
                 if (bitFrame == PiccResponses.AnswerToRequest)
                 {
                     return true;
                 }
             }
+
+            //// Console.WriteLine("Fail");
 
             return false;
         }

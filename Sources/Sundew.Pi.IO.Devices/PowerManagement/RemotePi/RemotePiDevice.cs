@@ -10,8 +10,8 @@ namespace Sundew.Pi.IO.Devices.PowerManagement.RemotePi
     using System;
     using System.Threading;
     using System.Threading.Tasks;
+    using global::Pi.Core.Threading;
     using global::Pi.IO.GeneralPurpose;
-    using global::Pi.System.Threading;
     using Sundew.Base.Threading;
     using Sundew.Base.Time;
 
@@ -26,7 +26,7 @@ namespace Sundew.Pi.IO.Devices.PowerManagement.RemotePi
         private readonly IGpioConnectionDriver gpioConnectionDriver;
         private readonly ConnectorPin shutdownInConnectorPin;
         private readonly ConnectorPin shutdownOutConnectorPin;
-        private readonly IOperationSystemShutdown operationSystemShutdown;
+        private readonly IOperatingSystemShutdown operatingSystemShutdown;
         private readonly TimeSpan shutdownTimeSpan;
         private readonly IDateTime dateTime;
         private readonly ICurrentThread thread;
@@ -39,17 +39,17 @@ namespace Sundew.Pi.IO.Devices.PowerManagement.RemotePi
         /// </summary>
         /// <param name="shutdownInConnectorPin">The shutdown in connector pin.</param>
         /// <param name="shutdownOutConnectorPin">The shutdown out connector pin.</param>
-        /// <param name="operationSystemShutdown">The operation system shutdown.</param>
+        /// <param name="operatingSystemShutdown">The operation system shutdown.</param>
         /// <param name="shutdownTimeSpan">The shutdown time span.</param>
         public RemotePiDevice(
             ConnectorPin shutdownInConnectorPin,
             ConnectorPin shutdownOutConnectorPin,
-            IOperationSystemShutdown operationSystemShutdown,
+            IOperatingSystemShutdown operatingSystemShutdown,
             TimeSpan shutdownTimeSpan = default)
             : this(
                   shutdownInConnectorPin,
                   shutdownOutConnectorPin,
-                  operationSystemShutdown,
+                  operatingSystemShutdown,
                   shutdownTimeSpan,
                   null,
                   null)
@@ -61,19 +61,19 @@ namespace Sundew.Pi.IO.Devices.PowerManagement.RemotePi
         /// </summary>
         /// <param name="shutdownInConnectorPin">The shutdown in connector pin.</param>
         /// <param name="shutdownOutConnectorPin">The shutdown out connector pin.</param>
-        /// <param name="operationSystemShutdown">The operation system shutdown.</param>
+        /// <param name="operatingSystemShutdown">The operation system shutdown.</param>
         /// <param name="shutdownTimeSpan">The shutdown time span.</param>
         /// <param name="gpioConnectionDriverFactory">The gpio connection driver factory.</param>
         public RemotePiDevice(
             ConnectorPin shutdownInConnectorPin,
             ConnectorPin shutdownOutConnectorPin,
-            IOperationSystemShutdown operationSystemShutdown,
+            IOperatingSystemShutdown operatingSystemShutdown,
             TimeSpan shutdownTimeSpan = default,
             IGpioConnectionDriverFactory gpioConnectionDriverFactory = null)
             : this(
                 shutdownInConnectorPin,
                 shutdownOutConnectorPin,
-                operationSystemShutdown,
+                operatingSystemShutdown,
                 shutdownTimeSpan,
                 gpioConnectionDriverFactory,
                 null)
@@ -85,7 +85,7 @@ namespace Sundew.Pi.IO.Devices.PowerManagement.RemotePi
         /// </summary>
         /// <param name="shutdownInConnectorPin">The shutdown in connector pin.</param>
         /// <param name="shutdownOutConnectorPin">The shutdown out connector pin.</param>
-        /// <param name="operationSystemShutdown">The operation system shutdown.</param>
+        /// <param name="operatingSystemShutdown">The operation system shutdown.</param>
         /// <param name="shutdownTimeSpan">The shutdown time span.</param>
         /// <param name="threadFactory">The thread factory.</param>
         /// <param name="dateTime">The date time.</param>
@@ -93,7 +93,7 @@ namespace Sundew.Pi.IO.Devices.PowerManagement.RemotePi
         public RemotePiDevice(
                     ConnectorPin shutdownInConnectorPin,
                     ConnectorPin shutdownOutConnectorPin,
-                    IOperationSystemShutdown operationSystemShutdown,
+                    IOperatingSystemShutdown operatingSystemShutdown,
                     TimeSpan shutdownTimeSpan,
                     IGpioConnectionDriverFactory gpioConnectionDriverFactory = null,
                     IDateTime dateTime = null,
@@ -103,7 +103,7 @@ namespace Sundew.Pi.IO.Devices.PowerManagement.RemotePi
             this.gpioConnectionDriver = this.gpioConnectionDriverFactory.Get();
             this.shutdownInConnectorPin = shutdownInConnectorPin;
             this.shutdownOutConnectorPin = shutdownOutConnectorPin;
-            this.operationSystemShutdown = operationSystemShutdown;
+            this.operatingSystemShutdown = operatingSystemShutdown;
             this.shutdownTimeSpan = shutdownTimeSpan < TimeSpan.FromSeconds(4) ? TimeSpan.FromSeconds(4) : shutdownTimeSpan;
             this.dateTime = dateTime ?? new DateTimeProvider();
             this.thread = ThreadFactory.EnsureThreadFactory(threadFactory).Create();
@@ -146,7 +146,7 @@ namespace Sundew.Pi.IO.Devices.PowerManagement.RemotePi
             {
                 this.cancellationTokenSource?.Cancel();
                 this.cancellationTokenSource = new CancellationTokenSource();
-                var shutdownEventArgs = new ShutdownEventArgs(this.cancellationTokenSource, this.dateTime.Now, this.shutdownTimeSpan, PowerOffTimeSpan);
+                var shutdownEventArgs = new ShutdownEventArgs(this.cancellationTokenSource, this.dateTime.LocalTime, this.shutdownTimeSpan, PowerOffTimeSpan);
                 this.shutdownTask = Task.Run(() => this.ShutdownAsync(this.cancellationTokenSource.Token), this.cancellationTokenSource.Token)
                     .ContinueWith((task, _) => this.cancellationTokenSource.Dispose(), null);
                 this.ShuttingDown?.Invoke(this, shutdownEventArgs);
@@ -159,7 +159,7 @@ namespace Sundew.Pi.IO.Devices.PowerManagement.RemotePi
             {
                 this.gpioConnectionDriver.Out(this.shutdownInConnectorPin).Write(true);
                 await Task.Delay(this.shutdownTimeSpan, token);
-                this.operationSystemShutdown.Shutdown();
+                this.operatingSystemShutdown.Shutdown();
             }
             catch (OperationCanceledException)
             {
