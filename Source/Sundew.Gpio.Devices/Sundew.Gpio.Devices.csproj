@@ -4,7 +4,6 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <Company>Hukano</Company>
     <Authors>Kim Hugener-Ohlsen</Authors>
-    <Version>0.0.1</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <LangVersion>preview</LangVersion>
     <Configurations>Debug;Release;Release-Stable</Configurations>
@@ -18,7 +17,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-Stable|AnyCPU'">
-    <SbpSourceName>local-stable</SbpSourceName>
+    <SppSourceName>local-stable</SppSourceName>
   </PropertyGroup>
 
   <ItemGroup>
@@ -39,7 +38,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Sundew.Base" Version="6.0.0" />
-    <PackageReference Include="Sundew.Build.Publish" Version="2.2.8">
+    <PackageReference Include="Sundew.Packaging.Publish" Version="3.0.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
