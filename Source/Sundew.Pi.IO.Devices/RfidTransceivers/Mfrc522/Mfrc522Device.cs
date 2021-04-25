@@ -11,7 +11,7 @@ namespace Sundew.Pi.IO.Devices.RfidTransceivers.Mfrc522
     using System.Threading.Tasks;
     using global::Pi.IO.GeneralPurpose;
     using global::Pi.IO.SerialPeripheralInterface;
-    using Sundew.Base.Computation;
+    using Sundew.Base.Primitives.Computation;
     using Sundew.Base.Threading;
 
     /// <summary>

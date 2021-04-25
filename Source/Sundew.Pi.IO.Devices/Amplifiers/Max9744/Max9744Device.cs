@@ -10,7 +10,7 @@ namespace Sundew.Pi.IO.Devices.Amplifiers.Max9744
     using System;
     using global::Pi.IO.GeneralPurpose;
     using global::Pi.IO.InterIntegratedCircuit;
-    using Sundew.Base.Numeric;
+    using Sundew.Base.Primitives.Numeric;
 
     /// <inheritdoc />
     /// <summary>

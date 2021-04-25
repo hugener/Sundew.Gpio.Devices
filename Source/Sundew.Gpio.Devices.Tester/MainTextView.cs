@@ -77,9 +77,9 @@ namespace Sundew.Gpio.Devices.Tester
         public void OnDraw(IRenderContext renderContext)
         {
             renderContext.SetPosition(0, 0);
-            renderContext.Write($"T:{this.GetTag(tag)}".LimitAndPadRight(renderContext.Size.Width, ' '));
+            renderContext.Write($"T:{this.GetTag(tag)}".AlignLeftAndLimit(renderContext.Size.Width, ' '));
             renderContext.SetPosition(0, 1);
-            renderContext.WriteLine($"U:{this.jobCounter} P{this.lastPressed}{this.pressed} R{this.rotation}".LimitAndPadRight(renderContext.Size.Width, ' '));
+            renderContext.WriteLine($"U:{this.jobCounter} P{this.lastPressed}{this.pressed} R{this.rotation}".AlignLeftAndLimit(renderContext.Size.Width, ' '));
         }
 
         public Task OnClosingAsync()

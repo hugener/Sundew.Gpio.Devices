@@ -37,13 +37,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Pi.SundewFork" Version="0.5.0" />
+    <PackageReference Include="Pi.SundewFork" Version="0.5.1-u20210409-104114-pre" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.261">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Sundew.Base" Version="6.0.0" />
-    <PackageReference Include="Sundew.Packaging.Publish" Version="3.0.1">
+    <PackageReference Include="Sundew.Base" Version="7.0.0" />
+    <PackageReference Include="Sundew.Packaging.Publish" Version="5.1.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

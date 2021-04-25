@@ -11,8 +11,8 @@ namespace Sundew.Gpio.Devices.PowerManagement.RemotePi
     using System.Device.Gpio;
     using System.Threading;
     using System.Threading.Tasks;
+    using Sundew.Base.Primitives.Time;
     using Sundew.Base.Threading;
-    using Sundew.Base.Time;
     using Sundew.Gpio.Devices.Buttons;
 
     /// <summary>
@@ -153,7 +153,7 @@ namespace Sundew.Gpio.Devices.PowerManagement.RemotePi
         {
             this.cancellationTokenSource?.Cancel();
             this.cancellationTokenSource = new CancellationTokenSource();
-            var shutdownEventArgs = new ShutdownEventArgs(this.cancellationTokenSource, this.dateTime.LocalTime, this.shutdownTimeSpan, PowerOffTimeSpan);
+            var shutdownEventArgs = new ShutdownEventArgs(this.cancellationTokenSource, this.dateTime.LocalNow, this.shutdownTimeSpan, PowerOffTimeSpan);
             this.shutdownTask = Task.Run(() => this.ShutdownAsync(this.cancellationTokenSource.Token), this.cancellationTokenSource.Token)
                 .ContinueWith((_, taskCancellationTokenSource) => ((CancellationTokenSource)taskCancellationTokenSource).Dispose(), this.cancellationTokenSource);
             this.ShuttingDown?.Invoke(this, shutdownEventArgs);

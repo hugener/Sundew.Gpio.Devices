@@ -12,8 +12,8 @@ namespace Sundew.Pi.IO.Devices.PowerManagement.RemotePi
     using System.Threading.Tasks;
     using global::Pi.Core.Threading;
     using global::Pi.IO.GeneralPurpose;
+    using Sundew.Base.Primitives.Time;
     using Sundew.Base.Threading;
-    using Sundew.Base.Time;
 
     /// <summary>
     /// Represents a connection to the RemotePI for shutting down PI.
@@ -146,7 +146,7 @@ namespace Sundew.Pi.IO.Devices.PowerManagement.RemotePi
             {
                 this.cancellationTokenSource?.Cancel();
                 this.cancellationTokenSource = new CancellationTokenSource();
-                var shutdownEventArgs = new ShutdownEventArgs(this.cancellationTokenSource, this.dateTime.LocalTime, this.shutdownTimeSpan, PowerOffTimeSpan);
+                var shutdownEventArgs = new ShutdownEventArgs(this.cancellationTokenSource, this.dateTime.LocalNow, this.shutdownTimeSpan, PowerOffTimeSpan);
                 this.shutdownTask = Task.Run(() => this.ShutdownAsync(this.cancellationTokenSource.Token), this.cancellationTokenSource.Token)
                     .ContinueWith((_, _) => this.cancellationTokenSource.Dispose(), null);
                 this.ShuttingDown?.Invoke(this, shutdownEventArgs);
