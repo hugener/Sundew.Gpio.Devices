@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       solutionPath: ./Source/Sundew.Gpio.Devices.sln
-      repository: 'https://sundew-dev:${{ secrets.SUNDEW_DEV_TOKEN }}@github.com/hugener/Sundew.Pi.IO.Devices.git'
+      repository: 'https://sundew-dev:${{ secrets.SUNDEW_DEV_TOKEN }}@github.com/hugener/Sundew.Gpio.Devices.git'
       source: 'https://api.nuget.org/v3/index.json'
       dev-source: 'https://www.myget.org/F/sundew-dev/api/v2/package'
       dev-source-latest-version: 'https://www.myget.org/F/sundew-dev/api/v3/index.json'
