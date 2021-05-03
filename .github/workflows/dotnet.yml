@@ -44,7 +44,7 @@ jobs:
         -bvs '='
         --input ${{ github.ref }}
     - name: Restore
-      run: dotnet restore ${{ env.solutionPath }} --verbosity normal -s ${{ env.source }}${{ steps.build-setup.outputs.dev-package-source-if-set }}
+      run: dotnet restore ${{ env.solutionPath }} --verbosity d -s ${{ env.source }}${{ steps.build-setup.outputs.dev-package-source-if-set }}
     - name: Build
       id: build
       run: >
