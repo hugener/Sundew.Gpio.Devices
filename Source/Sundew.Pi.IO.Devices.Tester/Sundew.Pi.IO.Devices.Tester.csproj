@@ -9,7 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Pi.IO.Devices.SundewFork" Version="0.5.1" />
     <PackageReference Include="Sundew.Base" Version="7.0.3" />
-    <PackageReference Include="Sundew.TextView.Pi.Drivers" Version="0.4.15" />
+    <PackageReference Include="Sundew.TextView.Pi.Drivers" Version="0.4.16" />
   </ItemGroup>
 
   <ItemGroup>
